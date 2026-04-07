@@ -1,7 +1,7 @@
 use {
   self::{
     entry::{
-      Entry, HeaderValue, InscriptionEntry, InscriptionEntryValue, InscriptionEventEntry, InscriptionEventType,
+      Entry, HeaderValue, InscriptionEntry, InscriptionEntryValue, InscriptionEventEntry,
       InscriptionIdValue, OutPointValue, RuneEntryValue, RuneIdValue, SatPointValue, SatRange,
       TxidValue,
     },
@@ -1430,7 +1430,7 @@ impl Index {
     Ok((children, more))
   }
 
-  pub fn get_inscription_events_by_block_range(
+  pub(crate) fn get_inscription_events_by_block_range(
     &self,
     start_block: u32,
     end_block: u32,
@@ -1462,7 +1462,7 @@ impl Index {
     Ok((events, more))
   }
 
-  pub fn get_inscription_events_by_id(
+  pub(crate) fn get_inscription_events_by_id(
     &self,
     inscription_id: InscriptionId,
     page_size: usize,
