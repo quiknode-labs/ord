@@ -629,6 +629,12 @@ pub(super) async fn events_by_block_range(
   Path((start, end, page)): Path<(u32, u32, usize)>,
 ) -> ServerResult {
   task::block_in_place(|| {
+    if !index.has_inscription_event_index() {
+      return Err(ServerError::NotFound(
+        "this server has no inscription event index".to_string(),
+      ));
+    }
+
     let (entries, more) = index.get_inscription_events_by_block_range(start, end, 100, page)?;
 
     let events = entries.into_iter().map(api::InscriptionEvent::from).collect();
@@ -642,6 +648,12 @@ pub(super) async fn events_by_inscription(
   Path((inscription_id, page)): Path<(InscriptionId, usize)>,
 ) -> ServerResult {
   task::block_in_place(|| {
+    if !index.has_inscription_event_index() {
+      return Err(ServerError::NotFound(
+        "this server has no inscription event index".to_string(),
+      ));
+    }
+
     let (entries, more) = index.get_inscription_events_by_id(inscription_id, 100, page)?;
 
     let events = entries.into_iter().map(api::InscriptionEvent::from).collect();

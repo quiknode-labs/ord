@@ -524,8 +524,6 @@ pub(crate) struct InscriptionEventEntry {
   pub charms: Option<u16>,
 }
 
-pub(crate) type InscriptionEventKeyValue = (u32, u32);
-
 impl InscriptionEventEntry {
   pub fn serialize(&self) -> Vec<u8> {
     let mut buf = Vec::with_capacity(128);
