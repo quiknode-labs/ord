@@ -1470,11 +1470,13 @@ impl Index {
   ) -> Result<(Vec<InscriptionEventEntry>, bool)> {
     let rtx = self.database.begin_read()?;
 
-    let sequence_number = rtx
+    let Some(sequence_number) = rtx
       .open_table(INSCRIPTION_ID_TO_SEQUENCE_NUMBER)?
       .get(&inscription_id.store())?
-      .ok_or_else(|| anyhow!("inscription {inscription_id} not found"))?
-      .value();
+      .map(|guard| guard.value())
+    else {
+      return Ok((Vec::new(), false));
+    };
 
     let event_index_table = rtx.open_multimap_table(SEQUENCE_NUMBER_TO_INSCRIPTION_EVENTS)?;
     let event_table = rtx.open_table(INSCRIPTION_EVENT_TO_DATA)?;

@@ -654,6 +654,12 @@ pub(super) async fn events_by_inscription(
       ));
     }
 
+    let Some(_) = index.get_inscription_entry(inscription_id)? else {
+      return Err(ServerError::NotFound(format!(
+        "inscription {inscription_id} not found"
+      )));
+    };
+
     let (entries, more) = index.get_inscription_events_by_id(inscription_id, 100, page)?;
 
     let events = entries.into_iter().map(api::InscriptionEvent::from).collect();
