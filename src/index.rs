@@ -2780,7 +2780,10 @@ impl Index {
 
 #[cfg(test)]
 mod tests {
-  use {super::*, crate::index::testing::Context};
+  use {
+    super::*,
+    crate::{index::entry::InscriptionEventType, index::testing::Context},
+  };
 
   #[test]
   fn height_limit() {
@@ -7278,5 +7281,51 @@ mod tests {
       .unwrap();
 
     assert!(events.is_empty());
+  }
+
+  #[test]
+  fn inscription_transfer_event_rolled_back_on_reorg() {
+    let mut context = Context::builder()
+      .arg("--index-addresses")
+      .arg("--index-inscription-events")
+      .build();
+
+    context.index.set_durability(redb::Durability::Immediate);
+
+    context.mine_blocks(1);
+
+    let txid = context.core.broadcast_tx(TransactionTemplate {
+      inputs: &[(1, 0, 0, inscription("text/plain", "hello").to_witness())],
+      ..default()
+    });
+    let inscription_id = InscriptionId { txid, index: 0 };
+
+    context.mine_blocks(1);
+
+    context.core.broadcast_tx(TransactionTemplate {
+      inputs: &[(2, 1, 0, Default::default())],
+      ..default()
+    });
+
+    context.mine_blocks(1);
+
+    let (events, _) = context
+      .index
+      .get_inscription_events_by_id(inscription_id, 100, 0)
+      .unwrap();
+
+    assert_eq!(events.len(), 2);
+    assert_eq!(events[1].event_type, InscriptionEventType::Transferred);
+
+    context.core.invalidate_tip();
+    context.mine_blocks(2);
+
+    let (events, _) = context
+      .index
+      .get_inscription_events_by_id(inscription_id, 100, 0)
+      .unwrap();
+
+    assert_eq!(events.len(), 1);
+    assert_eq!(events[0].event_type, InscriptionEventType::Created);
   }
 }
