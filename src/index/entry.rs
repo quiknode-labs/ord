@@ -515,7 +515,6 @@ pub(crate) struct InscriptionEventEntry {
   pub event_type: InscriptionEventType,
   pub block_height: u32,
   pub inscription_id: InscriptionId,
-  pub sequence_number: u32,
   pub txid: Txid,
   pub new_satpoint: Option<SatPoint>,
   pub old_satpoint: Option<SatPoint>,
@@ -533,7 +532,6 @@ impl InscriptionEventEntry {
     buf.extend_from_slice(&id_val.0.to_le_bytes());
     buf.extend_from_slice(&id_val.1.to_le_bytes());
     buf.extend_from_slice(&id_val.2.to_le_bytes());
-    buf.extend_from_slice(&self.sequence_number.to_le_bytes());
     let txid_bytes = self.txid.store();
     buf.extend_from_slice(&txid_bytes);
     match &self.new_satpoint {
@@ -589,8 +587,6 @@ impl InscriptionEventEntry {
     let id_2 = u32::from_le_bytes(data[pos..pos + 4].try_into().unwrap());
     pos += 4;
     let inscription_id = InscriptionId::load((id_0, id_1, id_2));
-    let sequence_number = u32::from_le_bytes(data[pos..pos + 4].try_into().unwrap());
-    pos += 4;
     let txid = Txid::load(data[pos..pos + 32].try_into().unwrap());
     pos += 32;
     let has_new = data[pos] == 1;
@@ -640,7 +636,6 @@ impl InscriptionEventEntry {
       event_type,
       block_height,
       inscription_id,
-      sequence_number,
       txid,
       new_satpoint,
       old_satpoint,
@@ -1099,7 +1094,6 @@ mod tests {
       event_type: InscriptionEventType::Created,
       block_height: 800_000,
       inscription_id,
-      sequence_number: 42,
       txid,
       new_satpoint: Some(
         "1111111111111111111111111111111111111111111111111111111111111111:0:0"
@@ -1131,7 +1125,6 @@ mod tests {
       event_type: InscriptionEventType::Transferred,
       block_height: 850_000,
       inscription_id,
-      sequence_number: 100,
       txid,
       new_satpoint: Some(
         "3333333333333333333333333333333333333333333333333333333333333333:1:500"
@@ -1165,7 +1158,6 @@ mod tests {
       event_type: InscriptionEventType::Created,
       block_height: 900_000,
       inscription_id,
-      sequence_number: 999,
       txid,
       new_satpoint: None,
       old_satpoint: None,
