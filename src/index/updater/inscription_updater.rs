@@ -603,13 +603,11 @@ impl InscriptionUpdater<'_, '_> {
           self.inscription_event_to_data.as_mut(),
           self.sequence_number_to_inscription_events.as_mut(),
         ) {
-          let to_address = if !unbound {
-            new_script_pubkey.and_then(|spk| {
+          let to_address = new_script_pubkey
+            .filter(|_| !unbound)
+            .and_then(|spk| {
               self.chain.address_from_script(spk).ok().map(|a| a.to_string())
-            })
-          } else {
-            None
-          };
+            });
 
           let event = InscriptionEventEntry {
             event_type: InscriptionEventType::Created,
