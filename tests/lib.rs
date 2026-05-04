@@ -62,6 +62,7 @@ mod epochs;
 mod find;
 mod index;
 mod info;
+mod inscription_events;
 mod json_api;
 mod list;
 mod parse;
